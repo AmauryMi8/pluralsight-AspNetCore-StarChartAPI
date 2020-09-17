@@ -46,20 +46,22 @@ namespace StarChart.Controllers
         {
             try
             {
-                if (!_context.CelestialObjects.Any(o => o.Name == name))
+                if (_context.CelestialObjects.Any(o => o.Name == name))
+                {
+                    var results = _context.CelestialObjects.Where(o => o.Name == name).ToList();
+
+                    foreach (var item in results)
+                    {
+                        var orbitingBodies = _context.CelestialObjects.Where(o => o.OrbitedObjectId == item.Id)?.ToList();
+                        item.Satellites = orbitingBodies;
+                    }
+
+                    return Ok(results);
+                }
+                else
                 {
                     return NotFound();
-                }
-
-                var results = _context.CelestialObjects.Where(o => o.Name == name).ToList();
-
-                foreach (var item in results)
-                {
-                    var orbitingBodies = _context.CelestialObjects.Where(o => o.OrbitedObjectId == item.Id)?.ToList();
-                    item.Satellites = orbitingBodies;
-                }
-
-                return Ok(results);
+                } 
             }
             catch (Exception)
             {
