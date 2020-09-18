@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StarChart.Data;
+using StarChart.Models;
 
 namespace StarChart.Controllers
 {
@@ -17,8 +18,7 @@ namespace StarChart.Controllers
             _context = context;
         }
 
-        [ActionName("GetById")]
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "GetById")]
         public IActionResult GetById(int id)
         {
             try
@@ -42,7 +42,7 @@ namespace StarChart.Controllers
         }
 
         [HttpGet("{name}")]
-        public  IActionResult GetByName(string name)
+        public IActionResult GetByName(string name)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace StarChart.Controllers
                 else
                 {
                     return NotFound();
-                } 
+                }
             }
             catch (Exception)
             {
@@ -94,5 +94,29 @@ namespace StarChart.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
             }
         }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] CelestialObject newObject)
+        {
+            try
+            {
+                var existing = GetById(newObject.Id);
+                if (existing != null)
+                {
+                    return BadRequest("Id already exists!");
+                }
+
+                _context.CelestialObjects.Add(newObject);
+                _context.SaveChanges();
+
+                return CreatedAtRoute("GetById", new { id = newObject.Id }, newObject);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
+            }
+        }
+
+        
     }
 }
