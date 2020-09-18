@@ -27,7 +27,7 @@ namespace StarChart.Controllers
 
                 if (result == null)
                 {
-                    return NotFound();
+                    return NotFound($"Could not find celestial body with Id of {id}");
                 }
 
                 var orbitingBodies = _context.CelestialObjects.Where(o => o.OrbitedObjectId == id)?.ToList();
@@ -60,7 +60,7 @@ namespace StarChart.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return NotFound($"Could not find celestial body with Name of {name}");
                 }
             }
             catch (Exception)
@@ -117,8 +117,8 @@ namespace StarChart.Controllers
             }
         }
 
-        [HttpPut("{id:int}")]
-        public IActionResult UpDate(int id, CelestialObject updatedObject)
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, CelestialObject updatedObject)
         {
             try
             {
@@ -168,6 +168,29 @@ namespace StarChart.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                if (_context.CelestialObjects.Any(o => o.Id == id || o.OrbitedObjectId == id))
+                {
+                    var results = _context.CelestialObjects.Where(o => o.Id == id || o.OrbitedObjectId == id).ToList();
 
+                    _context.RemoveRange(results);
+                    _context.SaveChanges();
+
+                    return NoContent();
+                }
+                else
+                {
+                    return NotFound($"Could not find celestial body with Id of {id}");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
+            }
+        }
     }
 }
