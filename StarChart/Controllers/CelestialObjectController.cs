@@ -143,5 +143,31 @@ namespace StarChart.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
             }
         }
+
+        [HttpPatch("{id}/{name}")]
+        public IActionResult RenameObject(int id, string name)
+        {
+            try
+            {
+                var existing = _context.CelestialObjects.Where(o => o.Id == id).SingleOrDefault();
+                if (existing == null)
+                {
+                    return NotFound($"Could not find celestial body with Id of {id}");
+                }
+
+                existing.Name = name;
+
+                _context.Update(existing);
+                _context.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
+            }
+        }
+
+
     }
 }
