@@ -100,10 +100,10 @@ namespace StarChart.Controllers
         {
             try
             {
-                var existing = GetById(newObject.Id);
+                var existing = _context.CelestialObjects.Where(o => o.Id == newObject.Id).SingleOrDefault();
                 if (existing != null)
                 {
-                    return BadRequest("Id already exists!");
+                    return BadRequest("Id already exists");
                 }
 
                 _context.CelestialObjects.Add(newObject);
@@ -117,6 +117,31 @@ namespace StarChart.Controllers
             }
         }
 
-        
+        [HttpPut("{id:int}")]
+        public IActionResult UpDate(int id, CelestialObject updatedObject)
+        {
+            try
+            {
+                var existing = _context.CelestialObjects.Where(o => o.Id == id).SingleOrDefault();
+                if (existing == null)
+                {
+                    return NotFound($"Could not find celestial body with Id of {id}");
+                }
+
+                //Seems like a PATCH rather than a PUT... => Should i just Replace "existing" by "updatedObject" provided in parameter?
+                existing.Name = updatedObject.Name;
+                existing.OrbitalPeriod = updatedObject.OrbitalPeriod;
+                existing.OrbitedObjectId = updatedObject.OrbitedObjectId;
+
+                _context.Update(existing);
+                _context.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database internal error!");
+            }
+        }
     }
 }
