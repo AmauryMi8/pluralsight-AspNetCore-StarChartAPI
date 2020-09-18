@@ -78,7 +78,7 @@ namespace StarChart.Controllers
 
                 if (results == null)
                 {
-                    return NotFound();
+                    return NotFound("Database is empty");
                 }
 
                 foreach (var item in results)
